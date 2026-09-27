@@ -1,0 +1,6 @@
+"use client";
+import { useState } from "react";
+import type { NuevoProductoData } from "@/src/feature/Productos/components/NuevoProducto";
+import type { EditarProductoData } from "@/src/feature/Productos/components/EditarProduct";
+export function useNewProductForm(categories: string[]) { const [nombre, setNombre] = useState(""); const [categoria, setCategoria] = useState(categories[0] ?? ""); const [descripcion, setDescripcion] = useState(""); const [precio, setPrecio] = useState(""); const [stock, setStock] = useState(""); const [imagen, setImagen] = useState(""); const [estado, setEstado] = useState<NuevoProductoData["estado"]>("activo"); return { nombre, setNombre, categoria, setCategoria, descripcion, setDescripcion, precio, setPrecio, stock, setStock, imagen, setImagen, estado, setEstado }; }
+export function useEditProductForm(product: EditarProductoData) { const [nombre, setNombre] = useState(product.nombre); const [descripcion, setDescripcion] = useState(product.descripcion); const [precio, setPrecio] = useState(String(product.precio)); const [stock, setStock] = useState(String(product.stock)); const [imagenUrl, setImagenUrl] = useState(product.imagen); return { nombre, setNombre, descripcion, setDescripcion, precio, setPrecio, stock, setStock, imagenUrl, setImagenUrl }; }

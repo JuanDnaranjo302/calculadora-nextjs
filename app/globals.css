@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@heroui/styles";
 
 :root {
   --background: #ffffff;
@@ -8,6 +9,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+    --color-navy: #16123f;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

@@ -1,0 +1,130 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Rol {
+  admin
+  empleado
+}
+
+enum EstadoPedido {
+  PENDIENTE
+  ENTREGADO
+  CANCELADO
+}
+
+model Usuario {
+  id           String   @id @default(cuid())
+  nombre       String
+  apellido     String
+  email        String   @unique
+  contrasena   String
+  rol          Rol      @default(empleado)
+  activo       Boolean  @default(true)
+
+  fechaCreacion    DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
+
+  creadoPorId      String?
+  creadoPor        Usuario?  @relation("UsuarioCreadoPor", fields: [creadoPorId], references: [id])
+  usuariosCreados  Usuario[] @relation("UsuarioCreadoPor")
+
+  actualizadoPorId String?
+  actualizadoPor   Usuario?  @relation("UsuarioActualizadoPor", fields: [actualizadoPorId], references: [id])
+  usuariosActualizados Usuario[] @relation("UsuarioActualizadoPor")
+
+  // Relaciones inversas de auditoría en otras tablas
+  categoriasCreadas     Categoria[] @relation("CategoriaCreadaPor")
+  categoriasActualizadas Categoria[] @relation("CategoriaActualizadaPor")
+
+  productosCreados      Producto[]  @relation("ProductoCreadoPor")
+  productosActualizados Producto[]  @relation("ProductoActualizadoPor")
+
+  pedidosComoUsuario    Pedido[]    @relation("PedidoUsuario")
+  pedidosCreados        Pedido[]    @relation("PedidoCreadoPor")
+  pedidosActualizados   Pedido[]    @relation("PedidoActualizadoPor")
+
+  @@map("usuarios")
+}
+
+model Categoria {
+  id     String @id @default(cuid())
+  titulo String
+  url    String @unique
+  activo Boolean @default(true) 
+
+  fechaCreacion      DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
+
+  creadoPorId String?
+  creadoPor   Usuario? @relation("CategoriaCreadaPor", fields: [creadoPorId], references: [id])
+
+  actualizadoPorId String?
+  actualizadoPor   Usuario? @relation("CategoriaActualizadaPor", fields: [actualizadoPorId], references: [id])
+
+  productos Producto[]
+
+  @@map("categorias")
+}
+
+model Producto {
+  id             String  @id @default(cuid())
+  titulo         String
+  descripcion    String?
+  url            String  @unique
+  precioCompra   Decimal @db.Decimal(10, 2)
+  precioVenta    Decimal @db.Decimal(10, 2)
+  stock          Int     @default(0)
+  imagen         String?
+
+  categoriaId String
+  categoria   Categoria @relation(fields: [categoriaId], references: [id])
+
+  fechaCreacion      DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
+
+  creadoPorId String?
+  creadoPor   Usuario? @relation("ProductoCreadoPor", fields: [creadoPorId], references: [id])
+
+  actualizadoPorId String?
+  actualizadoPor   Usuario? @relation("ProductoActualizadoPor", fields: [actualizadoPorId], references: [id])
+
+  pedidos Pedido[]
+
+  @@map("productos")
+}
+
+model Pedido {
+  id        String       @id @default(cuid())
+
+  usuarioId String
+  usuario   Usuario      @relation("PedidoUsuario", fields: [usuarioId], references: [id])
+
+  productoId String
+  producto   Producto    @relation(fields: [productoId], references: [id])
+
+  cantidad Int
+  total    Decimal      @db.Decimal(10, 2)
+  estado   EstadoPedido @default(PENDIENTE)
+
+  fechaCreacion      DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
+
+  creadoPorId String?
+  creadoPor   Usuario? @relation("PedidoCreadoPor", fields: [creadoPorId], references: [id])
+
+  actualizadoPorId String?
+  actualizadoPor   Usuario? @relation("PedidoActualizadoPor", fields: [actualizadoPorId], references: [id])
+
+  @@map("pedidos")
+}
